@@ -1,36 +1,54 @@
 -- 1. 
 --     a. Which prescriber had the highest total number of claims (totaled over all drugs)? Report the npi and the total number of claims.
 
-SELECT total_claim_count, nppes_provider_last_org_name
-FROM prescriber p1
-LEFT JOIN prescription p2
-ON p1.npi = p2.npi
-WHERE total_claim_count IS NOT NULL
-ORDER BY total_claim_count DESC
+-- SELECT SUM(total_claim_count), nppes_provider_last_org_name
+-- FROM prescriber p1
+-- LEFT JOIN prescription p2
+-- ON p1.npi = p2.npi
+-- WHERE total_claim_count IS NOT NULL
+-- GROUP BY nppes_provider_last_org_name
+-- ORDER BY total_claim_count DESC
+
+SELECT nppes_provider_last_org_name, SUM(total_claim_count) AS claim_count_sum
+FROM prescriber
+INNER JOIN prescription
+	USING (npi)
+GROUP BY nppes_provider_last_org_name
+ORDER BY SUM(total_claim_count) DESC
+LIMIT 10;
  
 --     b. Repeat the above, but this time report the nppes_provider_first_name, nppes_provider_last_org_name,  specialty_description, and the total number of claims.
 
-SELECT nppes_provider_first_name, nppes_provider_last_org_name, specialty_description, total_claim_count
-FROM prescriber p1
-LEFT JOIN prescription p2
-ON p1.npi = p2.npi
-WHERE total_claim_count IS NOT NULL
-ORDER BY total_claim_count DESC
+SELECT npi, nppes_provider_last_org_name, nppes_provider_first_name, specialty_description, SUM(total_claim_count) as sum_total_claim_count
+FROM prescriber
+INNER JOIN prescription
+USING(npi)
+GROUP BY npi, nppes_provider_last_org_name, nppes_provider_first_name, specialty_description
+ORDER BY sum_total_claim_count DESC
+LIMIT 10;
 
 -- 2. 
 --     a. Which specialty had the most total number of claims (totaled over all drugs)?
 
-SELECT DISTINCT(specialty_description), SUM(p2.total_claim_count), total_claim_count
+SELECT DISTINCT(specialty_description), SUM(total_claim_count) as claim_count
 FROM prescriber p1
-FULL JOIN prescription p2
+INNER JOIN prescription p2
 ON p1.npi = p2.npi
 WHERE total_claim_count IS NOT NULL
-GROUP BY specialty_description, total_claim_count
-ORDER BY total_claim_count DESC
-
-SELECT 
+GROUP BY specialty_description
+ORDER BY claim_count DESC
 
 --     b. Which specialty had the most total number of claims for opioids?
+
+SELECT specialty_description, SUM(total_claim_count) AS sum_of_claim_count
+FROM prescriber p1
+LEFT JOIN prescription p2
+USING(npi)
+LEFT JOIN drug as d
+USING (drug_name)
+WHERE opioid_drug_flag = 'Y'
+GROUP BY specialty_description
+ORDER BY SUM(total_claim_count) DESC
 
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated prescriptions in the prescription table?
 
@@ -48,6 +66,15 @@ ORDER BY total_drug_cost DESC
 --PIRFENIDONE
 
 --     b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.**
+SELECT (total_drug_cost
+FROM prescription
+
+SELECT generic_name, (total_drug_cost / total_30_day_fill_count) as cost_per_day
+FROM drug
+FULL JOIN prescription
+USING(drug_name)
+WHERE total_drug_cost IS NOT NULL
+ORDER BY cost_per_day DESC
 
 -- 4. 
 --     a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for drugs which have opioid_drug_flag = 'Y', says 'antibiotic' for those drugs which have antibiotic_drug_flag = 'Y', and says 'neither' for all other drugs.
