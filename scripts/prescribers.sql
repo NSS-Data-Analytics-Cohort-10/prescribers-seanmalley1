@@ -66,10 +66,8 @@ ORDER BY total_drug_cost DESC
 --PIRFENIDONE
 
 --     b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.**
-SELECT (total_drug_cost
-FROM prescription
 
-SELECT generic_name, (total_drug_cost / total_30_day_fill_count) as cost_per_day
+SELECT generic_name, (total_drug_cost / total_day_supply) as cost_per_day
 FROM drug
 FULL JOIN prescription
 USING(drug_name)
@@ -78,6 +76,10 @@ ORDER BY cost_per_day DESC
 
 -- 4. 
 --     a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for drugs which have opioid_drug_flag = 'Y', says 'antibiotic' for those drugs which have antibiotic_drug_flag = 'Y', and says 'neither' for all other drugs.
+
+-- SELECT drug_name, opiod_drug_flag = 'Y' as opioid, antibiotic_drug_flag = 'Y' as antibiotic_drug_flag
+-- FROM drug
+
 
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
 
