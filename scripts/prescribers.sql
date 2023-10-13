@@ -57,13 +57,15 @@ ORDER BY SUM(total_claim_count) DESC
 -- 3. 
 --     a. Which drug (generic_name) had the highest total drug cost?
 
-SELECT generic_name, total_drug_cost
+SELECT generic_name, SUM(total_drug_cost) as total_cost
 FROM drug
 FULL JOIN prescription
 USING(drug_name)
 WHERE total_drug_cost IS NOT NULL
-ORDER BY total_drug_cost DESC
---PIRFENIDONE
+GROUP BY generic_name
+ORDER BY total_cost DESC
+LIMIT 1
+--INSULIN
 
 --     b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.**
 
@@ -88,20 +90,46 @@ SELECT
 FROM 
     drug;
 
-
-
-
-
-
-
-
-
-
-
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
+
+SELECT 
+    CAST(SUM(total_drug_cost) AS MONEY) as total_cost, 
+	
+    CASE
+        WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+        WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+        ELSE 'neither'
+    END AS drug_type
+FROM 
+    drug
+INNER JOIN prescription
+USING(drug_name)
+WHERE 
+CASE
+        WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+        WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+        ELSE 'neither'
+    END <> 'neither'
+GROUP BY CASE
+        WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+        WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+        ELSE 'neither'
+    END
+ORDER BY total_cost DESC
+
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
+
+SELECT DISTINCT(COUNT(cbsa)),f.state 
+	FROM cbsa c
+	LEFT JOIN fips_county f
+	ON c.fipscounty=f.fipscounty
+	WHERE state LIKE '%TN%'
+	GROUP BY f.state
+	ORDER BY count(cbsa);
+
+
 
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
 
