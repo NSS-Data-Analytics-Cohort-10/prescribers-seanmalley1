@@ -142,15 +142,15 @@ LIMIT 1;
 
 
 
---     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
+--     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population...
 
-SELECT county, population.population, cbsa
+SELECT county, population.population, cbsa, state
 FROM fips_county
 LEFT JOIN population
 USING (fipscounty)
 LEFT JOIN cbsa
 USING(fipscounty)
-WHERE cbsaname IS NULL
+WHERE cbsaname IS NULL AND POPULATION IS NOT NULL
 ORDER BY population.population DESC
 
 
