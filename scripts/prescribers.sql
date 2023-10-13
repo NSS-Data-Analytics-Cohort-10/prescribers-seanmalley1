@@ -131,7 +131,16 @@ SELECT DISTINCT(COUNT(cbsa)),f.state
 
 
 
---     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
+--     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population..
+
+SELECT population.population, cbsa, cbsaname
+FROM population
+INNER JOIN cbsa
+USING(fipscounty)
+ORDER BY population.population DESC
+LIMIT 1;
+
+
 
 --     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
 
