@@ -165,6 +165,7 @@ USING(fipscounty)
 WHERE cbsaname IS NULL AND POPULATION IS NOT NULL
 ORDER BY population.population DESC
 LIMIT 1;
+--SEVIER, 95523
 
 
 -- 6. 
@@ -186,6 +187,7 @@ FROM prescription p
 LEFT JOIN drug as d
 USING(drug_name)
 WHERE total_claim_count >= 3000
+--ANSWER
 
 
 
