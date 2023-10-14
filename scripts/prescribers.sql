@@ -1,13 +1,6 @@
 -- 1. 
 --     a. Which prescriber had the highest total number of claims (totaled over all drugs)? Report the npi and the total number of claims.
 
--- SELECT SUM(total_claim_count), nppes_provider_last_org_name
--- FROM prescriber p1
--- LEFT JOIN prescription p2
--- ON p1.npi = p2.npi
--- WHERE total_claim_count IS NOT NULL
--- GROUP BY nppes_provider_last_org_name
--- ORDER BY total_claim_count DESC
 
 SELECT nppes_provider_last_org_name, SUM(total_claim_count) AS claim_count_sum
 FROM prescriber
@@ -16,7 +9,8 @@ INNER JOIN prescription
 GROUP BY nppes_provider_last_org_name
 ORDER BY SUM(total_claim_count) DESC
 LIMIT 10;
- 
+--ANSWER: SMITH, 355104
+
 --     b. Repeat the above, but this time report the nppes_provider_first_name, nppes_provider_last_org_name,  specialty_description, and the total number of claims.
 
 SELECT npi, nppes_provider_last_org_name, nppes_provider_first_name, specialty_description, SUM(total_claim_count) as sum_total_claim_count
@@ -26,7 +20,7 @@ USING(npi)
 GROUP BY npi, nppes_provider_last_org_name, nppes_provider_first_name, specialty_description
 ORDER BY sum_total_claim_count DESC
 LIMIT 10;
-
+--ANSWER: BRUCE PENDLEY, FAMILY PRACTICE 99707 claims
 -- 2. 
 --     a. Which specialty had the most total number of claims (totaled over all drugs)?
 
@@ -37,6 +31,7 @@ ON p1.npi = p2.npi
 WHERE total_claim_count IS NOT NULL
 GROUP BY specialty_description
 ORDER BY claim_count DESC
+--ANSWER: Family practice
 
 --     b. Which specialty had the most total number of claims for opioids?
 
@@ -49,6 +44,7 @@ USING (drug_name)
 WHERE opioid_drug_flag = 'Y'
 GROUP BY specialty_description
 ORDER BY SUM(total_claim_count) DESC
+--NURSE PRACT
 
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated prescriptions in the prescription table?
 
@@ -152,6 +148,7 @@ LEFT JOIN cbsa
 USING(fipscounty)
 WHERE cbsaname IS NULL AND POPULATION IS NOT NULL
 ORDER BY population.population DESC
+LIMIT 1;
 
 
 -- 6. 
