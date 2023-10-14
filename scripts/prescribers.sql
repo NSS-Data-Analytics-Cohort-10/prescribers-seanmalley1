@@ -2,6 +2,17 @@
 --     a. Which prescriber had the highest total number of claims (totaled over all drugs)? Report the npi and the total number of claims.
 
 
+SELECT npi, SUM(total_claim_count) as sum_total_claim_count
+FROM prescriber
+INNER JOIN prescription
+USING(npi)
+GROUP BY npi
+ORDER BY sum_total_claim_count DESC
+LIMIT 1;
+
+ANSWER: 1881634483, 99707
+
+
 SELECT nppes_provider_last_org_name, SUM(total_claim_count) AS claim_count_sum
 FROM prescriber
 INNER JOIN prescription
@@ -61,11 +72,11 @@ WHERE total_drug_cost IS NOT NULL
 GROUP BY generic_name
 ORDER BY total_cost DESC
 LIMIT 1
---INSULIN
+--INSULIN GLARGINE,HUM.REC.ANLOG
 
 --     b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.**
 
-SELECT generic_name, (SUM(total_drug_cost) / SUM(total_day_supply)) as cost_per_day
+SELECT generic_name, CAST(ROUND((SUM(total_drug_cost) / SUM(total_day_supply)),2)AS MONEY) as cost_per_day
 FROM drug
 FULL JOIN prescription
 USING(drug_name)
@@ -86,32 +97,25 @@ SELECT
 FROM 
     drug;
 
+
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
 
-SELECT 
-    CAST(SUM(total_drug_cost) AS MONEY) as total_cost, 
-	
-    CASE
-        WHEN opioid_drug_flag = 'Y' THEN 'opioid'
-        WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
-        ELSE 'neither'
-    END AS drug_type
-FROM 
-    drug
-INNER JOIN prescription
+SELECT
+	CASE
+	WHEN d.opioid_drug_flag = 'Y' THEN 'opioid'
+	WHEN d.antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+	ELSE 'neither'
+	END AS drug_type,
+
+CAST(SUM(p.total_drug_cost) AS money) AS total_spent
+FROM drug AS d
+LEFT JOIN prescription AS p
 USING(drug_name)
-WHERE 
-CASE
-        WHEN opioid_drug_flag = 'Y' THEN 'opioid'
-        WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
-        ELSE 'neither'
-    END <> 'neither'
-GROUP BY CASE
-        WHEN opioid_drug_flag = 'Y' THEN 'opioid'
-        WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
-        ELSE 'neither'
-    END
-ORDER BY total_cost DESC
+GROUP BY drug_type
+ORDER BY total_spent DESC;
+--ANSWER: More was spent on opioids than antibiotics
+
+
 
 
 -- 5. 
