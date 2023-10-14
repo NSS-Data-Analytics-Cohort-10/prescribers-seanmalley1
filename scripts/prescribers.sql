@@ -174,6 +174,7 @@ LIMIT 1;
 SELECT total_claim_count, drug_name
 FROM prescription
 WHERE total_claim_count >= 3000
+--ANSWER: OXYCODONE HCL 3655, LEVOTHYROXINE SODIUM 3023,LEVOTHYROXINE SODIUM 3101,GABAPENTIN 3531,LISINOPRIL 3655,HYDROCODONE-ACETAMINOPHEN 3376,LEVOTHYROXINE SODIUM 3138, MIRTAZAPINE 3085, FUROSEMIDE 3083
 
 --     b. For each instance that you found in part a, add a column that indicates whether the drug is an opioid.
 
@@ -208,6 +209,23 @@ WHERE total_claim_count >= 3000
 
 
 -- 7. The goal of this exercise is to generate a full list of all pain management specialists in Nashville and the number of claims they had for each opioid. **Hint:** The results from all 3 parts will have 637 rows.
+
+	
+SELECT npi, drug_name, specialty_description, nppes_provider_city,
+CASE
+	WHEN d.opioid_drug_flag = 'Y' THEN 'opioid'
+	END AS drug_type,
+	p.total_claim_count
+FROM prescription AS p
+LEFT JOIN drug AS d
+USING(drug_name)
+LEFT JOIN drug
+USING (drug_name)
+LEFT JOIN prescriber
+USING (npi)
+WHERE specialty_description ILIKE 'Pain Managment'
+	AND nppes_provider_city ILIKE 'Nashville';
+
 
 --     a. First, create a list of all npi/drug_name combinations for pain management specialists (specialty_description = 'Pain Management) in the city of Nashville (nppes_provider_city = 'NASHVILLE'), where the drug is an opioid (opiod_drug_flag = 'Y'). **Warning:** Double-check your query before running it. You will only need to use the prescriber and drug tables since you don't need the claims numbers yet.
 
