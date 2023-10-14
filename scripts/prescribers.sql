@@ -129,17 +129,28 @@ SELECT DISTINCT(COUNT(cbsa)),f.state,cbsaname
 	WHERE state LIKE '%TN%'
 	GROUP BY f.state, cbsaname
 	ORDER BY count(cbsa);
+--ANSWER: 10
 
 
 
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population..
 
-SELECT population.population, cbsa, cbsaname
-FROM population
-INNER JOIN cbsa
+-- SELECT population.population, cbsa, cbsaname
+-- FROM population
+-- INNER JOIN cbsa
+-- USING(fipscounty)
+-- ORDER BY population.population DESC
+
+SELECT
+c.cbsaname,
+SUM(p.population) AS total_population
+FROM cbsa AS c
+INNER JOIN population AS p
 USING(fipscounty)
-ORDER BY population.population DESC
-LIMIT 1;
+GROUP BY c.cbsaname
+ORDER BY total_population DESC;
+--ANSWER: LARGEST - Nashville-Davidson--Murfreesboro--Franklin, TN, SMALLEST: Morristown, TN
+
 
 
 
@@ -159,7 +170,24 @@ LIMIT 1;
 -- 6. 
 --     a. Find all rows in the prescription table where total_claims is at least 3000. Report the drug_name and the total_claim_count.
 
+SELECT total_claim_count, drug_name
+FROM prescription
+WHERE total_claim_count >= 3000
+
 --     b. For each instance that you found in part a, add a column that indicates whether the drug is an opioid.
+
+SELECT p.drug_name,
+	CASE
+		WHEN d.opioid_drug_flag = 'Y' THEN 'opioid'
+		WHEN d.antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+		ELSE 'neither'
+		END AS drug_type, p.total_claim_count
+FROM prescription p
+LEFT JOIN drug as d
+USING(drug_name)
+WHERE total_claim_count >= 3000
+
+
 
 --     c. Add another column to you answer from the previous part which gives the prescriber first and last name associated with each row.
 
