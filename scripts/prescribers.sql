@@ -113,6 +113,7 @@ LEFT JOIN prescription AS p
 USING(drug_name)
 GROUP BY drug_type
 ORDER BY total_spent DESC;
+
 --ANSWER: More was spent on opioids than antibiotics
 
 
@@ -121,12 +122,12 @@ ORDER BY total_spent DESC;
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
 
-SELECT DISTINCT(COUNT(cbsa)),f.state 
+SELECT DISTINCT(COUNT(cbsa)),f.state,cbsaname
 	FROM cbsa c
 	LEFT JOIN fips_county f
 	ON c.fipscounty=f.fipscounty
 	WHERE state LIKE '%TN%'
-	GROUP BY f.state
+	GROUP BY f.state, cbsaname
 	ORDER BY count(cbsa);
 
 
