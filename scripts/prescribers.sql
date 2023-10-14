@@ -83,7 +83,7 @@ USING(drug_name)
 WHERE total_drug_cost IS NOT NULL
 GROUP BY generic_name
 ORDER BY cost_per_day DESC
-
+--ANSWER: C1 ESTERASE INHIBITOR $3,495.22
 -- 4. 
 --     a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for drugs which have opioid_drug_flag = 'Y', says 'antibiotic' for those drugs which have antibiotic_drug_flag = 'Y', and says 'neither' for all other drugs.
 
