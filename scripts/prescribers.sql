@@ -223,7 +223,7 @@ FULL JOIN drug AS d ON prescription.drug_name = d.drug_name
 FULL JOIN prescriber AS p ON prescription.npi = p.npi
 WHERE specialty_description = 'Pain Management'
     AND nppes_provider_city ILIKE '%Nashville%'
-	AND opioid_drug_flag = 'Y';
+	AND opioid_drug_flag = 'Y' 
 --ANSWER 35
 --or
 SELECT 
@@ -244,13 +244,46 @@ AND opioid_drug_flag = 'Y'
 
 --     b. Next, report the number of claims per drug per prescriber. Be sure to include all combinations, whether or not the prescriber had any claims. You should report the npi, the drug name, and the number of claims (total_claim_count).
 
-SELECT p.npi, d.drug_name, specialty_description, nppes_provider_city, total_claim_count, nppes_provider_last_org_name, nppes_provider_first_name
+SELECT p.npi, d.drug_name, specialty_description, nppes_provider_city, total_claim_count, nppes_provider_last_org_name, nppes_provider_first_name, COALESCE(SUM(prescription.total_claim_count), 0) as total_claims
 FROM prescription
 FULL JOIN drug AS d ON prescription.drug_name = d.drug_name
 FULL JOIN prescriber AS p ON prescription.npi = p.npi
 WHERE specialty_description = 'Pain Management'
     AND nppes_provider_city ILIKE '%Nashville%'
-	AND opioid_drug_flag = 'Y';
+	AND opioid_drug_flag = 'Y'
+GROUP BY p.npi, d.drug_name, specialty_description, nppes_provider_city, total_claim_count, nppes_provider_last_org_name, nppes_provider_first_name
+
+--or maybe this could do something
+SELECT 
+    prescriber.npi,
+    drug.drug_name as drug_name,
+	nppes_provider_last_org_name,
+	nppes_provider_first_name,
+	specialty_description,
+	nppes_provider_city,
+    COALESCE(SUM(prescription.total_claim_count), 0) as total_claims
+FROM 
+    prescriber
+LEFT JOIN 
+    prescription
+    USING (npi)
+LEFT JOIN 
+    drug
+    USING (drug_name)
+WHERE 
+    prescriber.specialty_description iLIKE '%Pain Management%'
+    AND prescriber.nppes_provider_city iLIKE '%Nashville%'
+GROUP BY 
+    prescriber.npi,
+    drug.drug_name,
+	nppes_provider_last_org_name,
+	nppes_provider_first_name,
+	specialty_description,
+	nppes_provider_city
+ORDER BY 
+    prescriber.npi,
+	nppes_provider_last_org_name,
+    drug.drug_name;
 
     
 --     c. Finally, if you have not done so already, fill in any missing values for total_claim_count with 0. Hint - Google the COALESCE function.
